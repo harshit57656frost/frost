@@ -1,0 +1,41 @@
+{
+  "total_raw": 5572,
+  "total_clean": 5158,
+  "duplicates_removed": 414,
+  "ham_count": 4516,
+  "spam_count": 642,
+  "ham_percentage": 87.55,
+  "spam_percentage": 12.45,
+  "ratio_display": "7.0 : 1 (Ham to Spam)",
+  "avg_ham_char_length": 70.9,
+  "avg_spam_char_length": 137.4,
+  "median_ham_char_length": 53,
+  "median_spam_char_length": 148,
+  "max_ham_char_length": 910,
+  "max_spam_char_length": 223,
+  "avg_ham_word_count": 14.2,
+  "avg_spam_word_count": 23.7,
+  "length_distribution": {
+    "ham_buckets": [
+      2159,
+      1363,
+      624,
+      270,
+      100
+    ],
+    "spam_buckets": [
+      20,
+      53,
+      274,
+      294,
+      1
+    ],
+    "bucket_labels": [
+      "0-50",
+      "51-100",
+      "101-150",
+      "151-200",
+      "201+"
+    ]
+  }
+}

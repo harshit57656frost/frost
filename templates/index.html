@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpamShield AI &bull; Cyber-Security NLP Spam Mail Detection</title>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #070b12;
+      --bg-surface: #0c1322;
+      --bg-card: #101b2f;
+      --bg-card-hover: #14223c;
+      --border-subtle: #1a2a44;
+      --border-bright: #274169;
+      
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --emerald-dark: #064e3b;
+      --emerald-light: #34d399;
+      
+      --crimson: #ef4444;
+      --crimson-glow: rgba(239, 68, 68, 0.25);
+      --crimson-dark: #450a0a;
+      --crimson-light: #f87171;
+      
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.2);
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(ellipse at 15% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 85% 10%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-base) 0%, #05080e 100%);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    code, pre, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* HEADER & NAVIGATION */
+    header {
+      background: rgba(12, 19, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #0ea5e9, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      display: block;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      background: rgba(16, 27, 47, 0.7);
+      padding: 0.3rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-tab {
+      padding: 0.55rem 1.1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 12px var(--emerald-glow);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 27, 47, 0.8);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.active {
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+    }
+
+    .btn-train-header {
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      color: #fff;
+      border: none;
+      padding: 0.55rem 1.15rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 0 15px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-train-header:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 20px rgba(13, 148, 136, 0.45);
+    }
+
+    .btn-train-header:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD STYLES */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-bright);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ==========================================================================
+       TAB 1: LIVE MESSAGE SCANNER
+       ========================================================================== */
+    .scanner-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .scanner-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .presets-container {
+      margin-bottom: 1.25rem;
+    }
+
+    .presets-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-subtle);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .preset-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-bright);
+    }
+
+    .preset-btn.spam-preset:hover {
+      border-color: var(--crimson);
+      box-shadow: 0 0 10px var(--crimson-glow);
+    }
+
+    .preset-btn.ham-preset:hover {
+      border-color: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald-glow);
+    }
+
+    .preset-btn strong {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .preset-btn.spam-preset strong {
+      color: var(--crimson-light);
+    }
+
+    .preset-btn.ham-preset strong {
+      color: var(--emerald-light);
+    }
+
+    .preset-btn span {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .input-textarea-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    textarea#message-input {
+      width: 100%;
+      min-height: 180px;
+      max-height: 400px;
+      resize: vertical;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea#message-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .textarea-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.2rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    .char-badge {
+      background: var(--bg-surface);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .scanner-controls {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-analyze {
+      flex: 1;
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-analyze:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-analyze:active {
+      transform: translateY(0);
+    }
+
+    .btn-clear {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-clear:hover {
+      color: #fff;
+      border-color: var(--border-bright);
+    }
+
+    /* RESULT CARD */
+    .result-container {
+      min-height: 480px;
+    }
+
+    .awaiting-card {
+      border: 2px dashed var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--text-subtle);
+      background: rgba(12, 19, 34, 0.4);
+    }
+
+    .awaiting-icon {
+      font-size: 3rem;
+      color: var(--border-bright);
+      margin-bottom: 0.5rem;
+      animation: pulseSubtle 3s infinite ease-in-out;
+    }
+
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .verdict-card {
+      display: none;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .verdict-header {
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .verdict-header.spam {
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.2) 0%, rgba(16, 27, 47, 0.8) 100%);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .verdict-header.safe {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 27, 47, 0.8) 100%);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.6rem;
+      border-radius: 9999px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .verdict-header.spam .verdict-badge {
+      background: var(--crimson);
+      color: #fff;
+      box-shadow: 0 0 25px var(--crimson-glow);
+    }
+
+    .verdict-header.safe .verdict-badge {
+      background: var(--emerald);
+      color: #fff;
+      box-shadow: 0 0 25px var(--emerald-glow);
+    }
+
+    .risk-descriptor {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .verdict-header.spam .risk-descriptor { color: var(--crimson-light); }
+    .verdict-header.safe .risk-descriptor { color: var(--emerald-light); }
+
+    .verdict-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .metric-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+    }
+
+    .metric-tile-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-subtle);
+      margin-bottom: 0.3rem;
+    }
+
+    .metric-tile-val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* CONFIDENCE BAR */
+    .confidence-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+
+    .confidence-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .confidence-track {
+      height: 12px;
+      background: #111b2b;
+      border-radius: 9999px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .confidence-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 9999px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .confidence-bar.spam {
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+      box-shadow: 0 0 12px var(--crimson-glow);
+    }
+
+    .confidence-bar.safe {
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      box-shadow: 0 0 12px var(--emerald-glow);
+    }
+
+    /* ACCORDION FOR NLP PIPELINE */
+    .nlp-accordion {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      overflow: hidden;
+    }
+
+    .nlp-accordion-header {
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--cyan);
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .nlp-accordion-header:hover {
+      background: rgba(6, 182, 212, 0.05);
+    }
+
+    .nlp-accordion-body {
+      display: none;
+      padding: 1rem;
+      border-top: 1px solid var(--border-subtle);
+      background: #090e18;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .nlp-accordion-body.open {
+      display: flex;
+    }
+
+    .nlp-step-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nlp-step-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-subtle);
+      font-weight: 700;
+    }
+
+    .nlp-step-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.5rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #cbd5e1;
+      word-break: break-all;
+    }
+
+    .tokens-pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .token-pill {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #38bdf8;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+    }
+
+    .suspicious-terms-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .suspicious-terms-title {
+      color: var(--crimson-light);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ==========================================================================
+       TAB 2: DATASET INSIGHTS
+       ========================================================================== */
+    .stats-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (max-width: 1024px) {
+      .stats-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1.15rem;
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+    .stat-icon.cyan { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+    .stat-icon.emerald { background: rgba(16, 185, 129, 0.15); color: var(--emerald); }
+    .stat-icon.crimson { background: rgba(239, 68, 68, 0.15); color: var(--crimson); }
+
+    .stat-meta h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-subtle);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-meta .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-meta .stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (max-width: 900px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+
+    .insights-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .insights-details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.82rem;
+    }
+
+    .info-item span:first-child {
+      color: var(--text-muted);
+    }
+
+    .info-item span:last-child {
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #fff;
+    }
+
+    /* ==========================================================================
+       TAB 3: MODEL LAB & BENCHMARKING
+       ========================================================================== */
+    .trainer-hero-card {
+      background: linear-gradient(135deg, rgba(16, 27, 47, 0.95), rgba(12, 19, 34, 0.95));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .trainer-hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100%;
+      background: radial-gradient(circle at right, rgba(16, 185, 129, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .trainer-hero-left h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+      color: #fff;
+    }
+
+    .trainer-hero-left p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    .btn-run-training {
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      color: #fff;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-run-training:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-run-training:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* LEADERBOARD TABLE */
+    .table-responsive {
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+
+    table.leaderboard-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    table.leaderboard-table th {
+      background: #090f1b;
+      color: var(--text-subtle);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.leaderboard-table th:first-child { border-top-left-radius: var(--radius-sm); }
+    table.leaderboard-table th:last-child { border-top-right-radius: var(--radius-sm); }
+
+    table.leaderboard-table td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(26, 42, 68, 0.5);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    table.leaderboard-table tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    table.leaderboard-table tr.winner-row td {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    table.leaderboard-table tr.winner-row td:first-child {
+      border-left: 3px solid var(--emerald);
+    }
+
+    .model-name-cell {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .best-badge {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--emerald);
+      color: var(--emerald-light);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* CONFUSION MATRIX HEATMAP */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 960px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .matrix-selector-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .matrix-select-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .matrix-select-btn:hover {
+      color: #fff;
+      border-color: var(--border-bright);
+    }
+
+    .matrix-select-btn.active {
+      color: #fff;
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--cyan);
+    }
+
+    .confusion-matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .cm-cell {
+      padding: 1.25rem 1rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.25rem;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .cm-cell:hover {
+      transform: scale(1.02);
+    }
+
+    .cm-cell.tn {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+    }
+
+    .cm-cell.tp {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    .cm-cell.fp {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .cm-cell.fn {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fde68a;
+    }
+
+    .cm-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .cm-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cm-desc {
+      font-size: 0.68rem;
+      opacity: 0.8;
+      margin-top: 0.2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(12, 19, 34, 0.6);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-subtle);
+      margin-top: auto;
+    }
+
+    /* TOAST / ALERT */
+    .toast-overlay {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.success { border-color: var(--emerald); color: var(--emerald-light); }
+    .toast.error { border-color: var(--crimson); color: var(--crimson-light); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-text">
+          <h1>SpamShield AI</h1>
+          <span>NLP Machine Learning Engine</span>
+        </div>
+      </a>
+
+      <!-- NAVIGATION TABS -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="tab-scanner">
+          <i class="fa-solid fa-radar"></i> Live Scanner
+        </button>
+        <button class="nav-tab" data-tab="tab-insights">
+          <i class="fa-solid fa-chart-pie"></i> Dataset Insights
+        </button>
+        <button class="nav-tab" data-tab="tab-lab">
+          <i class="fa-solid fa-flask-vial"></i> Model Lab
+        </button>
+      </nav>
+
+      <!-- HEADER ACTIONS -->
+      <div class="header-actions">
+        <div class="status-pill" id="global-status-pill">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-label">Checking Model...</span>
+        </div>
+        <button class="btn-train-header" id="btn-header-train">
+          <i class="fa-solid fa-bolt"></i> Train Models
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <main>
+
+    <!-- ====================================================================
+         TAB 1: LIVE MESSAGE SCANNER
+         ==================================================================== -->
+    <section class="tab-content active" id="tab-scanner">
+      <div class="scanner-grid">
+        
+        <!-- LEFT COLUMN: INPUT -->
+        <div class="card">
+          <h2 class="card-title">
+            <i class="fa-solid fa-envelope-open-text" style="color: var(--cyan);"></i>
+            Message Threat Analysis
+          </h2>
+          <p class="card-subtitle">
+            Paste any raw SMS, phishing bait, or email body. The system normalizes text, strips stopwords, extracts unigram/bigram TF-IDF vectors, and scores threat probability.
+          </p>
+
+          <!-- SAMPLE PRESETS -->
+          <div class="presets-container">
+            <div class="presets-title">
+              <i class="fa-solid fa-bolt-lightning"></i> Quick-Test Sample Presets
+            </div>
+            <div class="preset-buttons">
+              <button class="preset-btn spam-preset" data-preset="spam-lottery">
+                <strong><i class="fa-solid fa-triangle-exclamation"></i> Prize / Lottery Scam</strong>
+                <span>URGENT! You won £1000 cash. Claim now...</span>
+              </button>
+              <button class="preset-btn spam-preset" data-preset="spam-phish">
+                <strong><i class="fa-solid fa-link"></i> Bank Account Phishing</strong>
+                <span>SECURITY ALERT: Verify identity immediately...</span>
+              </button>
+              <button class="preset-btn ham-preset" data-preset="ham-friend">
+                <strong><i class="fa-solid fa-circle-check"></i> Casual Friend Text</strong>
+                <span>Hey, are you free for dinner tonight?...</span>
+              </button>
+              <button class="preset-btn ham-preset" data-preset="ham-work">
+                <strong><i class="fa-solid fa-circle-check"></i> Workplace Status Update</strong>
+                <span>Team, the project report is ready for review...</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- INPUT TEXTAREA -->
+          <div class="input-textarea-wrapper">
+            <textarea id="message-input" placeholder="Type or paste an email message, SMS text, or suspicious notification here to analyze in real time..."></textarea>
+            <div class="textarea-footer">
+              <span>Supports raw ASCII, unicode, long text, links & emails</span>
+              <span class="char-badge"><span id="char-count">0</span> chars &bull; <span id="word-count">0</span> words</span>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="scanner-controls">
+            <button class="btn-analyze" id="btn-scan">
+              <i class="fa-solid fa-shield-virus"></i> Analyze Message Threat
+            </button>
+            <button class="btn-clear" id="btn-clear-text" title="Clear input">
+              <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: VERDICT & RESULTS -->
+        <div class="result-container">
+          
+          <!-- AWAITING PLACEHOLDER -->
+          <div class="awaiting-card" id="awaiting-panel">
+            <div class="awaiting-icon">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Awaiting Message Input</h3>
+            <p>Paste a message or click a quick sample preset above, then click <strong>Analyze Message Threat</strong> to inspect real-time classification.</p>
+          </div>
+
+          <!-- ANIMATED VERDICT CARD -->
+          <div class="verdict-card" id="verdict-card">
+            <div class="verdict-header" id="verdict-header">
+              <div class="verdict-badge" id="verdict-badge">
+                <i class="fa-solid fa-circle-exclamation" id="verdict-icon"></i>
+                <span id="verdict-text">SPAM</span>
+              </div>
+              <div class="risk-descriptor" id="risk-descriptor">
+                High-Threat Phishing / Malicious Spam
+              </div>
+            </div>
+
+            <div class="verdict-body">
+              
+              <!-- METRIC TILES -->
+              <div class="metric-row">
+                <div class="metric-tile">
+                  <div class="metric-tile-label">Confidence Score</div>
+                  <div class="metric-tile-val" id="metric-confidence" style="color: var(--cyan);">98.4%</div>
+                </div>
+                <div class="metric-tile">
+                  <div class="metric-tile-label">Engine Model</div>
+                  <div class="metric-tile-val" id="metric-model" style="font-size: 0.95rem; line-height: 1.4;">Multinomial NB</div>
+                </div>
+              </div>
+
+              <!-- CONFIDENCE BAR -->
+              <div class="confidence-section">
+                <div class="confidence-labels">
+                  <span>Classification Confidence</span>
+                  <span id="conf-bar-text" style="font-family: 'JetBrains Mono', monospace;">98.4%</span>
+                </div>
+                <div class="confidence-track">
+                  <div class="confidence-bar" id="confidence-bar"></div>
+                </div>
+              </div>
+
+              <!-- SUSPICIOUS TERMS HIGHLIGHT (IF SPAM) -->
+              <div class="suspicious-terms-box" id="suspicious-box" style="display: none;">
+                <div class="suspicious-terms-title">
+                  <i class="fa-solid fa-skull-crossbones"></i> Spam Trigger Keywords Detected:
+                </div>
+                <div class="tokens-pill-list" id="suspicious-list"></div>
+              </div>
+
+              <!-- EXPANDABLE NLP STEPS ACCORDION -->
+              <div class="nlp-accordion">
+                <div class="nlp-accordion-header" id="accordion-toggle">
+                  <span><i class="fa-solid fa-code-branch"></i> View NLP Preprocessing Pipeline Breakdown</span>
+                  <i class="fa-solid fa-chevron-down" id="accordion-arrow"></i>
+                </div>
+                <div class="nlp-accordion-body" id="accordion-body">
+                  <div class="nlp-step-row">
+                    <span class="nlp-step-tag">1. Lowercase & URL Removal</span>
+                    <div class="nlp-step-content" id="step-lower-url">-</div>
+                  </div>
+                  <div class="nlp-step-row">
+                    <span class="nlp-step-tag">2. Numbers & Punctuation Stripped</span>
+                    <div class="nlp-step-content" id="step-alpha">-</div>
+                  </div>
+                  <div class="nlp-step-row">
+                    <span class="nlp-step-tag">3. Tokenization & English Stopwords Filtered</span>
+                    <div class="tokens-pill-list" id="step-tokens"></div>
+                  </div>
+                  <div class="nlp-step-row">
+                    <span class="nlp-step-tag">4. Lemmatization / Stemmed Root Form (TF-IDF Input)</span>
+                    <div class="nlp-step-content" id="step-lemmatized">-</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: DATASET INSIGHTS & VISUAL ANALYTICS
+         ==================================================================== -->
+    <section class="tab-content" id="tab-insights">
+      
+      <!-- 4 SUMMARY METRIC CARDS -->
+      <div class="stats-cards-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div class="stat-meta">
+            <h4>Raw Messages</h4>
+            <div class="stat-val" id="stat-total-raw">-</div>
+            <div class="stat-sub">Ingested from dataset</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon cyan">
+            <i class="fa-solid fa-filter"></i>
+          </div>
+          <div class="stat-meta">
+            <h4>Clean Unique</h4>
+            <div class="stat-val" id="stat-total-clean">-</div>
+            <div class="stat-sub"><span id="stat-dups-removed">-</span> duplicates purged</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon emerald">
+            <i class="fa-solid fa-shield-check"></i>
+          </div>
+          <div class="stat-meta">
+            <h4>Safe (Ham) Class</h4>
+            <div class="stat-val" id="stat-ham-count">-</div>
+            <div class="stat-sub" id="stat-ham-pct">- % of dataset</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon crimson">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="stat-meta">
+            <h4>Spam Class</h4>
+            <div class="stat-val" id="stat-spam-count">-</div>
+            <div class="stat-sub" id="stat-spam-pct">- % of dataset</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-grid">
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-chart-pie" style="color: var(--emerald);"></i>
+            Class Distribution Ratio
+          </h3>
+          <p class="card-subtitle">Comparison of legitimate Ham messages vs malicious/unsolicited Spam.</p>
+          <div class="chart-wrapper">
+            <canvas id="chart-distribution"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-chart-column" style="color: var(--cyan);"></i>
+            Message Character Length Histogram
+          </h3>
+          <p class="card-subtitle">Distribution of message character lengths across Ham vs Spam classes.</p>
+          <div class="chart-wrapper">
+            <canvas id="chart-length-hist"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADDITIONAL DETAILED METRICS -->
+      <div class="insights-details-grid">
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-ruler-combined" style="color: var(--blue);"></i>
+            Length & Complexity Statistics
+          </h3>
+          <p class="card-subtitle">Comparative character and word statistics demonstrating structural differences.</p>
+          <ul class="info-list">
+            <li class="info-item">
+              <span>Ham Average Character Length</span>
+              <span id="detail-avg-ham-len">- chars</span>
+            </li>
+            <li class="info-item">
+              <span>Spam Average Character Length</span>
+              <span id="detail-avg-spam-len" style="color: var(--crimson-light);">- chars</span>
+            </li>
+            <li class="info-item">
+              <span>Ham Average Word Count</span>
+              <span id="detail-avg-ham-words">- words</span>
+            </li>
+            <li class="info-item">
+              <span>Spam Average Word Count</span>
+              <span id="detail-avg-spam-words" style="color: var(--crimson-light);">- words</span>
+            </li>
+            <li class="info-item">
+              <span>Ham Max Character Length</span>
+              <span id="detail-max-ham-len">- chars</span>
+            </li>
+            <li class="info-item">
+              <span>Spam Max Character Length</span>
+              <span id="detail-max-spam-len">- chars</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-network-wired" style="color: var(--cyan);"></i>
+            Pipeline Engineering Parameters
+          </h3>
+          <p class="card-subtitle">Core configurations applied to dataset ingestion and feature extraction.</p>
+          <ul class="info-list">
+            <li class="info-item">
+              <span>Train / Test Split Ratio</span>
+              <span>80% Train : 20% Test (Stratified)</span>
+            </li>
+            <li class="info-item">
+              <span>Random State Seed</span>
+              <span>42 (Fully Reproducible)</span>
+            </li>
+            <li class="info-item">
+              <span>TF-IDF Vocabulary Cap</span>
+              <span>3,000 N-Gram Features</span>
+            </li>
+            <li class="info-item">
+              <span>N-Gram Range</span>
+              <span>(1, 2) Unigrams + Bigrams</span>
+            </li>
+            <li class="info-item">
+              <span>Leakage Prevention</span>
+              <span>Strictly fit on X_train only</span>
+            </li>
+            <li class="info-item">
+              <span>Best Model Selection Metric</span>
+              <span>Spam Class F1-Score (label=1)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         TAB 3: MODEL PERFORMANCE & BENCHMARKING LAB
+         ==================================================================== -->
+    <section class="tab-content" id="tab-lab">
+      
+      <!-- HERO TRAINER CARD -->
+      <div class="trainer-hero-card">
+        <div class="trainer-hero-left">
+          <h2>Supervised Multi-Algorithm Training Lab</h2>
+          <p>
+            Train and rigorously evaluate four distinct machine learning classifiers on the stratified 80:20 split: 
+            <strong>Multinomial Naïve Bayes</strong>, <strong>Logistic Regression</strong>, <strong>Linear SVC</strong>, and <strong>Random Forest (200 trees)</strong>.
+            The system automatically selects the highest-scoring model based on the Spam class F1-score.
+          </p>
+        </div>
+        <button class="btn-run-training" id="btn-trigger-train">
+          <i class="fa-solid fa-play"></i> Run Training Pipeline
+        </button>
+      </div>
+
+      <!-- LEADERBOARD TABLE -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">
+          <i class="fa-solid fa-trophy" style="color: var(--amber);"></i>
+          Algorithm Performance Leaderboard
+        </h3>
+        <p class="card-subtitle">
+          Side-by-side evaluation metrics. Highlighted row indicates the winning classifier selected for live real-time inference.
+        </p>
+
+        <div class="table-responsive">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Model Architecture</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>Weighted F1</th>
+                <th>Spam F1 (Pos Label)</th>
+                <th>Fit Time</th>
+                <th>Deployment</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  Loading evaluation results...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LAB VISUALIZATIONS GRID -->
+      <div class="lab-grid">
+        
+        <!-- GROUPED BAR CHART -->
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-chart-simple" style="color: var(--cyan);"></i>
+            Multi-Metric Comparative Chart
+          </h3>
+          <p class="card-subtitle">Accuracy, Precision, Recall, and F1-Score grouped across all 4 algorithms.</p>
+          <div class="chart-wrapper" style="height: 320px;">
+            <canvas id="chart-models-benchmark"></canvas>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE CONFUSION MATRIX -->
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-table-cells-large" style="color: var(--emerald);"></i>
+            Interactive Confusion Matrix Heatmap
+          </h3>
+          <p class="card-subtitle">Select an algorithm below to inspect its True Positives, True Negatives, and classification errors.</p>
+
+          <!-- MODEL SELECTOR BUTTONS -->
+          <div class="matrix-selector-bar" id="matrix-model-selectors"></div>
+
+          <!-- 2x2 HEATMAP GRID -->
+          <div class="confusion-matrix-grid">
+            <div class="cm-cell tn">
+              <div class="cm-label">True Negatives (TN)</div>
+              <div class="cm-val" id="cm-val-tn">-</div>
+              <div class="cm-desc">Safe Ham correctly recognized as Safe</div>
+            </div>
+            <div class="cm-cell fp">
+              <div class="cm-label">False Positives (FP)</div>
+              <div class="cm-val" id="cm-val-fp">-</div>
+              <div class="cm-desc">Safe Ham wrongly flagged as Spam</div>
+            </div>
+            <div class="cm-cell fn">
+              <div class="cm-label">False Negatives (FN)</div>
+              <div class="cm-val" id="cm-val-fn">-</div>
+              <div class="cm-desc">Spam message leaked as Safe</div>
+            </div>
+            <div class="cm-cell tp">
+              <div class="cm-label">True Positives (TP)</div>
+              <div class="cm-val" id="cm-val-tp">-</div>
+              <div class="cm-desc">Spam message correctly blocked</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-overlay" id="toast-overlay"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>SpamShield AI &bull; Built with Python, Scikit-Learn, NLTK, TF-IDF & Flask</div>
+    <div style="margin-top: 0.35rem; color: #475569;">English SMS Spam Collection Benchmark &bull; Stratified 80:20 Split</div>
+  </footer>
+
+  <!-- ========================================================================
+       FRONTEND JAVASCRIPT CONTROLLER
+       ======================================================================== -->
+  <script>
+    // State management
+    const state = {
+      isTrained: false,
+      isTraining: false,
+      datasetStats: null,
+      evalResults: null,
+      selectedMatrixModel: null,
+      charts: {
+        distribution: null,
+        lengthHist: null,
+        benchmark: null
+      }
+    };
+
+    // Hardcoded preset samples
+    const SAMPLE_PRESETS = {
+      "spam-lottery": "URGENT! You've been selected as today's lucky winner! CLAIM your £1,000 cash prize NOW by clicking: http://win-jackpot.xyz/claim?id=778 Reply STOP to opt out.",
+      "spam-phish": "SECURITY ALERT: We detected unauthorized login attempts on your bank account. Verify your identity immediately at http://secure-portal-verify.net/login or your account will be suspended.",
+      "ham-friend": "Hey, are you free for dinner tonight? We are thinking about going to that Italian place downtown around 7:30 PM. Let me know!",
+      "ham-work": "Hi team, the Q3 quarterly financial report is finalized and ready for review. Please check the shared drive and share your feedback before the Friday standup."
+    };
+
+    // API Helper
+    const API = {
+      getStatus: () => fetch('/api/status').then(r => r.json()),
+      getStats: () => fetch('/api/stats').then(r => r.json()),
+      getResults: () => fetch('/api/results').then(r => r.json()),
+      train: () => fetch('/api/train', { method: 'POST' }).then(r => r.json()),
+      predict: (text) => fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      }).then(r => r.json())
+    };
+
+    // Show toast message
+    function showToast(message, type = 'success') {
+      const overlay = document.getElementById('toast-overlay');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      overlay.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', () => {
+      setupTabs();
+      setupScanner();
+      setupPresets();
+      setupTrainingTriggers();
+      loadInitialState();
+    });
+
+    // Tab Navigation
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          const targetId = tab.getAttribute('data-tab');
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          const targetContent = document.getElementById(targetId);
+          if (targetContent) targetContent.classList.add('active');
+
+          // Trigger chart render/resize when tabs become visible
+          if (targetId === 'tab-insights' && state.datasetStats) {
+            renderInsightsCharts(state.datasetStats);
+          } else if (targetId === 'tab-lab' && state.evalResults) {
+            renderBenchmarkChart(state.evalResults.leaderboard);
+          }
+        });
+      });
+    }
+
+    // Scanner & Accordion
+    function setupScanner() {
+      const input = document.getElementById('message-input');
+      const charCount = document.getElementById('char-count');
+      const wordCount = document.getElementById('word-count');
+      const btnScan = document.getElementById('btn-scan');
+      const btnClear = document.getElementById('btn-clear-text');
+
+      input.addEventListener('input', () => {
+        const text = input.value;
+        charCount.textContent = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        wordCount.textContent = words;
+      });
+
+      btnScan.addEventListener('click', () => {
+        analyzeMessage(input.value);
+      });
+
+      btnClear.addEventListener('click', () => {
+        input.value = '';
+        charCount.textContent = '0';
+        wordCount.textContent = '0';
+        resetVerdictCard();
+      });
+
+      // Accordion toggle
+      const accToggle = document.getElementById('accordion-toggle');
+      const accBody = document.getElementById('accordion-body');
+      const accArrow = document.getElementById('accordion-arrow');
+      accToggle.addEventListener('click', () => {
+        const isOpen = accBody.classList.contains('open');
+        if (isOpen) {
+          accBody.classList.remove('open');
+          accArrow.style.transform = 'rotate(0deg)';
+        } else {
+          accBody.classList.add('open');
+          accArrow.style.transform = 'rotate(180deg)';
+        }
+      });
+    }
+
+    // Sample Presets
+    function setupPresets() {
+      const presetButtons = document.querySelectorAll('.preset-btn');
+      const input = document.getElementById('message-input');
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-preset');
+          if (SAMPLE_PRESETS[key]) {
+            input.value = SAMPLE_PRESETS[key];
+            input.dispatchEvent(new Event('input'));
+            analyzeMessage(input.value);
+          }
+        });
+      });
+    }
+
+    // Analyze Message
+    async function analyzeMessage(text) {
+      if (!text || !text.trim()) {
+        showToast('Please enter message text to analyze.', 'error');
+        return;
+      }
+
+      const btnScan = document.getElementById('btn-scan');
+      const originalHtml = btnScan.innerHTML;
+      btnScan.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing...';
+      btnScan.disabled = true;
+
+      try {
+        const res = await API.predict(text);
+        if (res.error) {
+          showToast(res.error, 'error');
+          return;
+        }
+
+        renderVerdict(res);
+      } catch (err) {
+        showToast('Analysis request failed: ' + err.message, 'error');
+      } finally {
+        btnScan.innerHTML = originalHtml;
+        btnScan.disabled = false;
+      }
+    }
+
+    // Render Verdict Card
+    function renderVerdict(data) {
+      document.getElementById('awaiting-panel').style.display = 'none';
+      const card = document.getElementById('verdict-card');
+      card.style.display = 'block';
+
+      const header = document.getElementById('verdict-header');
+      const badge = document.getElementById('verdict-badge');
+      const icon = document.getElementById('verdict-icon');
+      const text = document.getElementById('verdict-text');
+      const descriptor = document.getElementById('risk-descriptor');
+
+      const isSpam = data.is_spam;
+      header.className = `verdict-header ${isSpam ? 'spam' : 'safe'}`;
+      text.textContent = data.label;
+      descriptor.textContent = data.risk_level;
+
+      if (isSpam) {
+        icon.className = 'fa-solid fa-triangle-exclamation';
+      } else {
+        icon.className = 'fa-solid fa-circle-check';
+      }
+
+      // Confidence metrics
+      document.getElementById('metric-confidence').textContent = data.confidence_percent;
+      document.getElementById('metric-confidence').style.color = isSpam ? 'var(--crimson-light)' : 'var(--emerald-light)';
+      document.getElementById('metric-model').textContent = data.model_used || 'Best Classifier';
+
+      // Confidence Bar
+      const bar = document.getElementById('confidence-bar');
+      bar.className = `confidence-bar ${isSpam ? 'spam' : 'safe'}`;
+      document.getElementById('conf-bar-text').textContent = data.confidence_percent;
+      setTimeout(() => {
+        bar.style.width = `${data.confidence}%`;
+      }, 50);
+
+      // Suspicious terms
+      const suspBox = document.getElementById('suspicious-box');
+      const suspList = document.getElementById('suspicious-list');
+      if (isSpam && data.suspicious_terms && data.suspicious_terms.length > 0) {
+        suspBox.style.display = 'block';
+        suspList.innerHTML = data.suspicious_terms
+          .map(t => `<span class="token-pill" style="border-color: var(--crimson); color: var(--crimson-light); background: rgba(239,68,68,0.15);">${t}</span>`)
+          .join('');
+      } else {
+        suspBox.style.display = 'none';
+      }
+
+      // NLP Steps breakdown
+      const steps = data.nlp_steps || {};
+      document.getElementById('step-lower-url').textContent = steps.url_stripped || '(none)';
+      document.getElementById('step-alpha').textContent = steps.alphabetic_only || '(none)';
+      
+      const stepTokens = document.getElementById('step-tokens');
+      if (steps.stopwords_removed && steps.stopwords_removed.length > 0) {
+        stepTokens.innerHTML = steps.stopwords_removed
+          .map(tok => `<span class="token-pill">${tok}</span>`)
+          .join('');
+      } else {
+        stepTokens.innerHTML = '<span style="color: var(--text-subtle);">(no tokens retained)</span>';
+      }
+
+      document.getElementById('step-lemmatized').textContent = steps.final_cleaned || '(empty)';
+    }
+
+    function resetVerdictCard() {
+      document.getElementById('verdict-card').style.display = 'none';
+      document.getElementById('awaiting-panel').style.display = 'flex';
+      document.getElementById('confidence-bar').style.width = '0%';
+    }
+
+    // Training Triggers
+    function setupTrainingTriggers() {
+      const headerBtn = document.getElementById('btn-header-train');
+      const labBtn = document.getElementById('btn-trigger-train');
+
+      const trigger = async () => {
+        if (state.isTraining) return;
+        setTrainingState(true);
+
+        try {
+          showToast('Training pipeline started across all 4 models...', 'success');
+          const res = await API.train();
+          if (res.success) {
+            showToast(`Training complete! Best Model: ${res.best_model_name} in ${res.duration_seconds}s`, 'success');
+            await loadInitialState();
+          } else {
+            showToast(res.error || 'Training failed', 'error');
+          }
+        } catch (err) {
+          showToast('Training failed: ' + err.message, 'error');
+        } finally {
+          setTrainingState(false);
+        }
+      };
+
+      headerBtn.addEventListener('click', trigger);
+      labBtn.addEventListener('click', trigger);
+    }
+
+    function setTrainingState(isTraining) {
+      state.isTraining = isTraining;
+      const headerBtn = document.getElementById('btn-header-train');
+      const labBtn = document.getElementById('btn-trigger-train');
+
+      if (isTraining) {
+        headerBtn.disabled = true;
+        headerBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Training...';
+        labBtn.disabled = true;
+        labBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Training 4 Models...';
+        document.getElementById('status-label').textContent = 'Training in Progress...';
+      } else {
+        headerBtn.disabled = false;
+        headerBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Train Models';
+        labBtn.disabled = false;
+        labBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Training Pipeline';
+      }
+    }
+
+    // Load initial system data
+    async function loadInitialState() {
+      try {
+        const [statusRes, statsRes] = await Promise.all([
+          API.getStatus(),
+          API.getStats()
+        ]);
+
+        // Update Global Status Pill
+        const dot = document.getElementById('status-dot');
+        const label = document.getElementById('status-label');
+        if (statusRes.trained) {
+          dot.classList.add('active');
+          label.textContent = `Model Active: ${statusRes.best_model}`;
+          state.isTrained = true;
+        } else {
+          dot.classList.remove('active');
+          label.textContent = 'Models Not Trained';
+          state.isTrained = false;
+        }
+
+        // Populate Dataset Stats
+        if (statsRes.success && statsRes.stats) {
+          state.datasetStats = statsRes.stats;
+          populateStatsUI(statsRes.stats);
+          renderInsightsCharts(statsRes.stats);
+        }
+
+        // Try load existing evaluation results
+        const evalRes = await API.getResults();
+        if (evalRes && evalRes.leaderboard) {
+          state.evalResults = evalRes;
+          populateLeaderboard(evalRes.leaderboard);
+          renderBenchmarkChart(evalRes.leaderboard);
+          setupConfusionMatrix(evalRes.leaderboard);
+        }
+      } catch (err) {
+        console.warn('Initial state loading warning:', err);
+      }
+    }
+
+    // Populate Dataset Stats UI
+    function populateStatsUI(stats) {
+      document.getElementById('stat-total-raw').textContent = stats.total_raw?.toLocaleString() || '-';
+      document.getElementById('stat-total-clean').textContent = stats.total_clean?.toLocaleString() || '-';
+      document.getElementById('stat-dups-removed').textContent = stats.duplicates_removed?.toLocaleString() || '0';
+      document.getElementById('stat-ham-count').textContent = stats.ham_count?.toLocaleString() || '-';
+      document.getElementById('stat-ham-pct').textContent = `${stats.ham_percentage}%`;
+      document.getElementById('stat-spam-count').textContent = stats.spam_count?.toLocaleString() || '-';
+      document.getElementById('stat-spam-pct').textContent = `${stats.spam_percentage}%`;
+
+      document.getElementById('detail-avg-ham-len').textContent = `${stats.avg_ham_char_length} chars`;
+      document.getElementById('detail-avg-spam-len').textContent = `${stats.avg_spam_char_length} chars`;
+      document.getElementById('detail-avg-ham-words').textContent = `${stats.avg_ham_word_count} words`;
+      document.getElementById('detail-avg-spam-words').textContent = `${stats.avg_spam_word_count} words`;
+      document.getElementById('detail-max-ham-len').textContent = `${stats.max_ham_char_length} chars`;
+      document.getElementById('detail-max-spam-len').textContent = `${stats.max_spam_char_length} chars`;
+    }
+
+    // Render Insights Charts
+    function renderInsightsCharts(stats) {
+      // 1. Doughnut Chart: Ham vs Spam
+      const ctxDist = document.getElementById('chart-distribution');
+      if (ctxDist) {
+        if (state.charts.distribution) state.charts.distribution.destroy();
+        state.charts.distribution = new Chart(ctxDist, {
+          type: 'doughnut',
+          data: {
+            labels: [`Ham / Safe (${stats.ham_percentage}%)`, `Spam (${stats.spam_percentage}%)`],
+            datasets: [{
+              data: [stats.ham_count, stats.spam_count],
+              backgroundColor: ['#10b981', '#ef4444'],
+              borderColor: '#0c1322',
+              borderWidth: 3,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#cbd5e1', font: { family: 'Inter', size: 12 } }
+              }
+            },
+            cutout: '65%'
+          }
+        });
+      }
+
+      // 2. Bar Chart: Character Length Histogram
+      const ctxHist = document.getElementById('chart-length-hist');
+      if (ctxHist && stats.length_distribution) {
+        if (state.charts.lengthHist) state.charts.lengthHist.destroy();
+        state.charts.lengthHist = new Chart(ctxHist, {
+          type: 'bar',
+          data: {
+            labels: stats.length_distribution.bucket_labels,
+            datasets: [
+              {
+                label: 'Ham Messages',
+                data: stats.length_distribution.ham_buckets,
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: 'Spam Messages',
+                data: stats.length_distribution.spam_buckets,
+                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                borderColor: '#ef4444',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                grid: { color: 'rgba(26, 42, 68, 0.5)' },
+                ticks: { color: '#94a3b8' }
+              },
+              y: {
+                grid: { color: 'rgba(26, 42, 68, 0.5)' },
+                ticks: { color: '#94a3b8' }
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { color: '#cbd5e1', font: { family: 'Inter', size: 12 } }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Populate Leaderboard Table
+    function populateLeaderboard(leaderboard) {
+      const tbody = document.getElementById('leaderboard-tbody');
+      tbody.innerHTML = '';
+
+      leaderboard.forEach(m => {
+        const tr = document.createElement('tr');
+        if (m.is_best) tr.className = 'winner-row';
+
+        tr.innerHTML = `
+          <td class="model-name-cell">
+            ${m.name}
+            ${m.is_best ? '<span class="best-badge"><i class="fa-solid fa-trophy"></i> Best</span>' : ''}
+          </td>
+          <td>${m.accuracy}%</td>
+          <td>${m.precision}%</td>
+          <td>${m.recall}%</td>
+          <td>${m.f1_score}%</td>
+          <td style="color: ${m.is_best ? 'var(--emerald-light)' : 'inherit'}; font-weight: 700;">${m.spam_f1}%</td>
+          <td style="color: var(--text-subtle);">${m.training_time_sec}s</td>
+          <td>
+            ${m.is_best ? '<span style="color: var(--emerald-light); font-weight:700;"><i class="fa-solid fa-circle-check"></i> Active</span>' : '<span style="color: var(--text-subtle);">Standby</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render Benchmark Chart
+    function renderBenchmarkChart(leaderboard) {
+      const ctx = document.getElementById('chart-models-benchmark');
+      if (!ctx) return;
+
+      if (state.charts.benchmark) state.charts.benchmark.destroy();
+
+      const labels = leaderboard.map(m => m.name.replace(' Classifier', '').replace(' Support Vector Machine', ''));
+      const accuracies = leaderboard.map(m => m.accuracy);
+      const precisions = leaderboard.map(m => m.precision);
+      const recalls = leaderboard.map(m => m.recall);
+      const f1s = leaderboard.map(m => m.f1_score);
+      const spamF1s = leaderboard.map(m => m.spam_f1);
+
+      state.charts.benchmark = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Accuracy',
+              data: accuracies,
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: '#3b82f6',
+              borderWidth: 1,
+              borderRadius: 3
+            },
+            {
+              label: 'Weighted F1',
+              data: f1s,
+              backgroundColor: 'rgba(6, 182, 212, 0.7)',
+              borderColor: '#06b6d4',
+              borderWidth: 1,
+              borderRadius: 3
+            },
+            {
+              label: 'Spam F1',
+              data: spamF1s,
+              backgroundColor: 'rgba(16, 185, 129, 0.85)',
+              borderColor: '#10b981',
+              borderWidth: 1,
+              borderRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 80,
+              max: 100,
+              grid: { color: 'rgba(26, 42, 68, 0.5)' },
+              ticks: { color: '#94a3b8' }
+            },
+            x: {
+              grid: { color: 'rgba(26, 42, 68, 0.5)' },
+              ticks: { color: '#94a3b8', font: { size: 11 } }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#cbd5e1', font: { family: 'Inter', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Confusion Matrix Setup
+    function setupConfusionMatrix(leaderboard) {
+      const container = document.getElementById('matrix-model-selectors');
+      container.innerHTML = '';
+
+      leaderboard.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `matrix-select-btn ${idx === 0 ? 'active' : ''}`;
+        btn.textContent = m.name;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.matrix-select-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          displayConfusionMatrix(m);
+        });
+        container.appendChild(btn);
+      });
+
+      if (leaderboard.length > 0) {
+        displayConfusionMatrix(leaderboard[0]);
+      }
+    }
+
+    function displayConfusionMatrix(modelEntry) {
+      const cm = modelEntry.confusion_matrix;
+      if (!cm) return;
+
+      document.getElementById('cm-val-tn').textContent = cm.tn.toLocaleString();
+      document.getElementById('cm-val-fp').textContent = cm.fp.toLocaleString();
+      document.getElementById('cm-val-fn').textContent = cm.fn.toLocaleString();
+      document.getElementById('cm-val-tp').textContent = cm.tp.toLocaleString();
+    }
+  </script>
+</body>
+</html>
